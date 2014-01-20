@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<xsd:schema xmlns="http://dgrandemange.fr/schema/txnmgr"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://dgrandemange.fr/schema/txnmgr"
+	attributeFormDefault="qualified" elementFormDefault="qualified">
+
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+
+	<xsd:annotation>
+		<xsd:documentation><![CDATA[
+	Spring XML Transaction manager Schema, version 0.0.1
+	Authors: Damien Grandemange
+
+	This defines a simple and consistent way of creating a namespace
+	of Transaction Manager related objects, managed by a Spring BeanFactory, read by
+	XmlBeanDefinitionReader (with DefaultBeanDefinitionDocumentReader).
+
+	TODO complete documentation
+
+		]]></xsd:documentation>
+	</xsd:annotation>
+
+	<xsd:element name="participant">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+	Defines a participant in a transaction manager.
+
+	Participant definition may contain nested tags for property values.
+	A participant may provide a list of the group(s) of participants to execute next in the transaction's manager worflow.
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="property" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:any minOccurs="0" />
+						</xsd:sequence>
+
+						<xsd:attribute name="name" form="unqualified" type="xsd:string"
+							use="required">
+							<xsd:annotation>
+								<xsd:documentation><![CDATA[
+	The name of the property, following JavaBean naming conventions.
+				]]></xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+
+						<xsd:attribute name="value" form="unqualified" type="xsd:string">
+							<xsd:annotation>
+								<xsd:documentation><![CDATA[
+	A short-cut alternative to a nested "<value>...</value>" element.
+				]]></xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+
+						<xsd:attribute name="ref" form="unqualified" type="xsd:string">
+							<xsd:annotation>
+								<xsd:documentation><![CDATA[
+	A short-cut alternative to a nested "<ref bean='...'/>".
+				]]></xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+
+						<xsd:attribute name="selectCriterion" form="unqualified"
+							type="xsd:string">
+							<xsd:annotation>
+								<xsd:documentation><![CDATA[
+	Mark this property as a transition (equivalent to the 'transition' attribute).
+				]]></xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+
+						<xsd:attribute name="transition" form="unqualified"
+							type="xsd:string">
+							<xsd:annotation>
+								<xsd:documentation><![CDATA[
+	Mark this property as a transition (equivalent to the 'selectCriterion' attribute).
+				]]></xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+
+			<xsd:attribute name="class" form="unqualified" type="xsd:string"
+				use="required">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The class of the participant. 
+	Should implement the com.mbs.txnmgr.service.IParticipant interface.
+				]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+
+			<xsd:attribute name="id" form="unqualified" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The unique identifier of this participant bean in the Spring factory.
+				]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="group">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+	Defines a group of participants in a transaction manager.
+
+	Group should contain at least one participant.
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="participant" minOccurs="1" maxOccurs="unbounded" />
+			</xsd:sequence>
+			<xsd:attribute name="name" form="unqualified" type="xsd:string"
+				use="required">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	A name identifying this group of participants.
+				]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="subflow">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+	Defines a logical set of groups. 
+
+	Use this when your transaction manager's main workflow can be organized into many subflows.
+	A subflow should contain at least one group.
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="group" minOccurs="1" maxOccurs="unbounded" />
+			</xsd:sequence>
+			<xsd:attribute name="desc" form="unqualified" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	A description of this subflow.
+				]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:group name="ptp-grp-group">
+		<xsd:sequence>
+			<xsd:element ref="participant" minOccurs="1" maxOccurs="unbounded" />
+			<xsd:element ref="group" minOccurs="0" maxOccurs="unbounded" />
+			<xsd:element ref="subflow" minOccurs="0" maxOccurs="unbounded" />
+		</xsd:sequence>
+	</xsd:group>
+
+	<xsd:element name="txnmgr">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+	Defines a transaction manager. 
+
+	A transaction manager should declare at least one participant.
+	Groups and sets of groups (subflows) may also be defined.	
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+
+			<xsd:sequence>
+<!-- 				<xsd:element ref="participant" minOccurs="1" maxOccurs="unbounded" /> -->
+				<xsd:group ref="ptp-grp-group" minOccurs="0" maxOccurs="unbounded" />
+			</xsd:sequence>
+
+			<xsd:attribute name="id" form="unqualified" type="xsd:string"
+				use="required">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The unique identifier of this transaction manager bean in the Spring factory.
+				]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+
+			<xsd:attribute name="name" form="unqualified" type="xsd:string"
+				use="required">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	Transaction manager user friendly name.
+				]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+
+			<xsd:attribute name="factory-bean" form="unqualified"
+				type="xsd:string" use="required">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	Defines a reference to the bean in this Spring factory to which the transaction manager's creation will be delegated.
+				]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+
+			<xsd:attribute name="factory-method" form="unqualified"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The name of the method to invoke on the referenced factory bean in order to create this transaction manager.
+	Method should take two arguments :
+	1) transaction manager's name,
+	2) a registry containing the transaction's participants and groups (see class com.mbs.txnmgr.model.ParticipantsGroupRegistry).
+				]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>
