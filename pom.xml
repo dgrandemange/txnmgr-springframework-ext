@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.dgrandemange</groupId>
 	<artifactId>txnmgr-springframework-ext</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 
 	<properties>
 		<fest.version>1.4</fest.version>
@@ -11,7 +11,7 @@
 		<mockito.version>1.9.5</mockito.version>
 		<spring.version>3.1.2.RELEASE</spring.version>
 		<!-- <spring-txmgr-ext.version>0.0.1-SNAPSHOT</spring-txmgr-ext.version> -->
-		<txnmgr.version>0.0.1-SNAPSHOT</txnmgr.version>
+		<txnmgr.version>0.0.1</txnmgr.version>
 
 		<slf4j.version>1.6.4</slf4j.version>
 		<logback.version>1.0.13</logback.version>
